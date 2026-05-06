@@ -57,9 +57,16 @@ async function scrapeHackerNews() {
       return;
     }
     
-    // Clear existing stories and insert new ones
-    await Story.deleteMany({});
-    await Story.insertMany(stories);
+    // Upsert each story to avoid wiping existing data on partial failures
+    const operations = stories.map((story) => ({
+      updateOne: {
+        filter: { hnId: story.hnId },
+        update: { $set: story },
+        upsert: true
+      }
+    }));
+
+    await Story.bulkWrite(operations, { ordered: false });
     
     console.log(`Successfully scraped and saved ${stories.length} stories`);
     
