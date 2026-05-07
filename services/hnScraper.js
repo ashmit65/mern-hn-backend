@@ -66,12 +66,17 @@ async function scrapeHackerNews() {
       }
     }));
 
-    await Story.bulkWrite(operations, { ordered: false });
+    const result = await Story.bulkWrite(operations, { ordered: false });
     
-    console.log(`Successfully scraped and saved ${stories.length} stories`);
+    console.log(`Successfully scraped ${stories.length} stories. New stories added: ${result.upsertedCount}`);
+    return {
+      totalScraped: stories.length,
+      newStories: result.upsertedCount
+    };
     
   } catch (error) {
     console.error('Error scraping Hacker News:', error.message);
+    throw error;
   }
 }
 

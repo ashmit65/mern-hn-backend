@@ -35,8 +35,12 @@ exports.getStories = async (req, res) => {
 // @access  Private
 exports.manualScrape = async (req, res) => {
   try {
-    await scrapeHackerNews();
-    res.json({ msg: 'Scraping completed successfully' });
+    const stats = await scrapeHackerNews();
+    res.json({ 
+      msg: 'Scraping completed successfully',
+      newStories: stats.newStories,
+      totalScraped: stats.totalScraped
+    });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
