@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const { scrapeHackerNews } = require('./services/hnScraper');
+const cron = require('node-cron');
 
 const app = express();
 
@@ -31,6 +32,12 @@ const startServer = async () => {
     await connectDB();
     await scrapeHackerNews();
 
+    // Schedule scraping every 30 minutes
+    cron.schedule('*/30 * * * *', () => {
+      console.log('Running scheduled scrape...');
+      scrapeHackerNews();
+    });
+
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
@@ -39,5 +46,14 @@ const startServer = async () => {
     process.exit(1);
   }
 };
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    msg: 'Server Error',
+    error: process.env.NODE_ENV === 'development' ? err.message : {}
+  });
+});
 
 startServer();
