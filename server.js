@@ -32,8 +32,8 @@ const startServer = async () => {
     await connectDB();
     await scrapeHackerNews();
 
-    // Schedule scraping every 30 minutes
-    cron.schedule('*/30 * * * *', () => {
+    // Schedule scraping every 1 hour (at minute 0)
+    cron.schedule('0 * * * *', () => {
       console.log('Running scheduled scrape...');
       scrapeHackerNews();
     });
